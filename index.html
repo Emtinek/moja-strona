@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRIOFORGE</title>
+  
+  <!-- Łącze do czcionki Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Resetowanie marginesów i box-sizing */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Ustawienie czcionki Montserrat dla całej strony */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #1e1c1c;
+      color: #333;
+    }
+    
+    .logo-container {
+      text-align: center;
+      padding: 20px;
+    }
+    .logo {
+      max-width: 300px;
+      width: 100%;
+      height: auto;
+    }
+    .chat-container {
+      border-radius: 25px;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #f9f9f9;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 70vh;
+      overflow: hidden;
+    }
+    .chat-header {
+    border-radius: 25px;
+    padding: 15px;
+    text-align: center;
+    font-size: 16px;
+    color: #000000;
+    /* font-weight: bold; */
+    background-color: #fafafa;
+    }
+    /* Sekcja tekstowa – wcześniej była w chat-footer */
+    .chat-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #f9f9f9;
+      background-color: white;
+    }
+    /* Nowoczesne pole tekstowe */
+    .text-input {
+      width: 100%;
+      padding: 12px 10px;
+      border: none;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+      resize: none;
+      min-height: 250px;
+      background-color: #fafafa;
+      transition: border-color 0.2s;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .text-input:focus {
+      outline: none;
+      border-bottom: 1px solid #162f3b;
+    }
+    /* Kontener przycisków poniżej pola tekstowego */
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    /* Przycisk-ikona do wyboru pliku */
+    .attachment-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+    }
+    .attachment-button img,
+    .attachment-button svg {
+      width: 24px;
+      height: 24px;
+    }
+    /* Przycisk wysyłania */
+    .send-button {
+      background-color: #162f3b;
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .send-button img {
+      width: 20px;
+      height: 20px;
+    }
+    /* Ukryty input plików */
+    .file-input-hidden {
+      display: none;
+    }
+    /* Obszar wyświetlania załączników – teraz będzie na dole */
+    .chat-body {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid #ccc;
+      position: relative;
+      align-items: flex-start; 
+      justify-content: flex-start;
+    }
+    .chat-body.drag-over {
+      border: 2px dashed #162f3b;
+      background-color: #e3f2fd;
+    }
+    .drop-instruction {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: 700;
+      color: #888;
+      text-align: center;
+      opacity: 0.9;
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .progress {
+      width: 0;
+      height: 8px;
+      background-color: #162f3b;
+      transition: width 0.2s;
+    }
+    /* Style dla załączników w obszarze chat-body */
+    .attachment {
+      display: inline-block;
+      background-color: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 5px;
+      position: relative;
+      max-width: 100px;
+      text-align: center;
+      overflow: visible;
+    }
+    .attachment img {
+      max-width: 100%;
+    }
+    .attachment video {
+      max-width: 100%;
+    }
+    .attachment p {
+      margin: 0;
+      padding: 0 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      width: 100%;
+    }
+    /* Styl przycisku usuwania załącznika */
+    .attachment .remove-button {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: black;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .attachment .remove-button:hover {
+      opacity: 0.7;
+    }
+    /* Reguły dla załączników wideo */
+    .attachment.video {
+      max-width: 160px;
+      flex: 0 0 160px;
+    }
+    .attachment.video video {
+      width: 100%;
+      height: auto;
+    }
+    /* Responsywność */
+    @media (max-width: 768px) {
+      .chat-container {
+        max-width: 95%;
+        height: 70vh;
+      }
+      .logo {
+        max-width: 150px;
+      }
+      .chat-header {
+        font-size: 14px;
+      }
+      .text-input {
+        min-height: 150px;
+      }
+      .drop-instruction {
+        font-size: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      .chat-footer {
+        padding: 8px;
+      }
+      .chat-container {
+        max-width: 95%;
+        height: 60vh;
+      }
+      .button-container {
+        flex-direction: row;
+      }
+      .send-button, .attachment-button {
+        padding: 8px;
+      }
+      .drop-instruction {
+        font-size: 22px;
+        padding: 8px;
+      }
+    }
+    
+    /* ================== STYLE MODALA EMAIL ================== */
+    .email-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .email-modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 90%;
+      width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .email-modal-content h3 {
+      margin-bottom: 15px;
+    }
+    .email-modal-content input {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .shake {
+      animation: shake 0.3s;
+    }
+    /* Stylowanie scrollbara dla przeglądarek WebKit (Chrome, Safari, Edge) */
+.text-input::-webkit-scrollbar {
+  width: 10px; /* szerokość paska */
+}
+
+.text-input::-webkit-scrollbar-track {
+  background: #f0f0f0; /* kolor tła "toru" scrollbara */
+  border-radius: 10px;
+}
+
+.text-input::-webkit-scrollbar-thumb {
+  background-color: #162f3b; /* kolor "kciuka" scrollbara – dostosuj do kolorystyki strony */
+  border-radius: 10px;
+  border: 2px solid #f0f0f0; /* opcjonalna ramka, która oddziela kciuk od toru */
+}
+
+.text-input::-webkit-scrollbar-thumb:hover {
+  background-color: #1c3e5c; /* jaśniejszy odcień po najechaniu kursorem */
+}
+
+/* Stylowanie scrollbara dla Firefoksa */
+.text-input {
+  scrollbar-width: thin; /* "thin" lub "auto" */
+  scrollbar-color: #162f3b #f0f0f0; /* pierwszy kolor – kciuk, drugi – tło scrollbara */
+}
+.chat-body::-webkit-scrollbar {
+  width: 10px;
+}
+.chat-body::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+.chat-body::-webkit-scrollbar-thumb {
+  background-color: #162f3b;
+  border-radius: 10px;
+  border: 2px solid #f0f0f0;
+}
+.chat-body::-webkit-scrollbar-thumb:hover {
+  background-color: #1c3e5c;
+}
+
+.chat-body {
+  scrollbar-width: thin;
+  scrollbar-color: #162f3b #f0f0f0;
+}
+.menu {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.menu ul {
+  list-style: none;
+  padding: 0;
+  display: inline-flex;
+  gap: 15px;
+}
+
+.menu li a {
+  text-decoration: none;
+  color: #ffffff; /* Białe linki */
+  font-weight: 700;
+ 
+  transition: color 0.3s;
+}
+
+.menu li a:hover {
+  color: #00bcd4; /* Kolor przy najechaniu myszką (np. jasny niebieski) */
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+nav a {
+  color: #162f3b;
+  text-decoration: none;
+}
+
+/* Nowość: responsywne zmniejszanie czcionki */
+@media (max-width: 768px) {
+  nav ul {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  nav ul {
+    font-size: 14px;
+    gap: 15px; /* zmniejszamy też trochę odstępy */
+  }
+
+  /* Dla ostatniego elementu listy "Kontakt" */
+  nav ul li:last-child {
+    margin-top: auto; /* Automatyczny margines od góry */
+    margin-bottom: auto; /* Automatyczny margines od dołu */
+  }
+}
+
+/* NOWOŚĆ: dla bardzo małych ekranów */
+@media (max-width: 350px) {
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+  }
+
+  nav ul li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Umożliwia pełne wyśrodkowanie */
+  }
+
+  nav ul li:last-child {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+}
+@keyframes pulse {
+  0% {
+    color: #ffffff;
+  }
+  50% {
+    color: #00bcd4; /* ten kolor z :hover */
+  }
+  100% {
+    color: #ffffff;
+  }
+}
+
+.menu li a.pulsujacy {
+  animation: pulse 2s infinite;
+}
+/* Dropdown menu ukryte domyślnie */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #162f3b;
+  padding: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  width: 200px;
+  text-align: center;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 10px 20px;
+  color: #ffffff;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.dropdown-menu li a:hover {
+  background-color: #00bcd4;
+  color: #1e1c1c;
+}
+  </style>
+</head>
+<body>
+  
+  <div class="logo-container">
+    <img src="NOWELOGO.png" alt="PRIOFORGE Logo" class="logo">
+  </div>
+
+<nav class="menu">
+  <ul>
+    
+    <li>
+  <a href="#" id="projectsToggle" class="pulsujacy">OSTATNIE PROJEKTY</a>
+  <ul id="projectsSubmenu" style="display: none; flex-direction: column; margin-top: 10px;">
+    <li><a href="banery.html">BANERY</a></li>
+    <li><a href="strony.html">STRONY INTERNETOWE</a></li>
+  </ul>
+</li>
+    
+  </ul>
+</nav>
+  <div class="chat-container">
+    <div class="chat-header">
+      Twoja cyfrowa kuźnia
+    </div>
+
+    <!-- Sekcja tekstowa -->
+    <div class="chat-footer">
+      <textarea id="textInput" placeholder="Co dla ciebie stworzyć? Potrafimy... wszystko :)" class="text-input"></textarea>
+      <div class="button-container">
+        <button id="attachmentButton" class="attachment-button">
+          <!-- Ikona klipsa -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" 
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+               stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19
+                     a3 3 0 0 1 4.24 4.24L9.93 12.83
+                     a1 1 0 0 1-1.41-1.41l4.14-4.14"/>
+          </svg>
+        </button>
+        <!-- Kliknięcie – najpierw pyta o email (modal), dopiero potem wysyłka -->
+        <button class="send-button" id="sendButton">
+          <img src="https://img.icons8.com/material-outlined/24/ffffff/filled-sent.png" alt="Wyślij">
+        </button>
+      </div>
+    </div>
+
+    <!-- Pasek ładowania -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div id="processingMessage" style="display: none; text-align: center; font-size: 16px; margin-top: 10px;">
+      Przetwarzanie plików, proszę czekać...
+    </div>
+
+    <!-- Obszar drop -->
+    <div class="chat-body" id="chatBody">
+      <div class="drop-instruction" id="dropInstruction">Pliki</div>
+    </div>
+
+    <!-- Ukryty input do wyboru pliku -->
+    <input type="file" id="file-upload" class="file-input-hidden" multiple>
+  </div>
+
+  <!-- ================== MODAL EMAIL ================== -->
+  <div id="emailModal" class="email-modal">
+    <div class="email-modal-content">
+      <h3>Podaj swój adres email</h3>
+      <input type="email" id="emailInput" placeholder="Twój email" required>
+      <br>
+      <button id="emailSendButton" class="send-button">
+        <img src="https://img.icons8.com/material-outlined/24/ffffff/filled-sent.png" alt="Wyślij">
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------------
+    // Elementy interfejsu
+    // -----------------------------------
+    const chatBody          = document.getElementById('chatBody');
+    const fileUpload        = document.getElementById('file-upload');
+    const textInput         = document.getElementById('textInput');
+    const sendButton        = document.getElementById('sendButton');
+    const attachmentButton  = document.getElementById('attachmentButton');
+    const progressBar       = document.getElementById('progress');
+    const processingMessage = document.getElementById('processingMessage');
+
+    const emailModal        = document.getElementById('emailModal');
+    const emailSendButton   = document.getElementById('emailSendButton');
+
+    let selectedFiles       = [];
+
+    // -----------------------------------
+    // Obsługa kliknięcia ikony klipsa
+    // -----------------------------------
+    attachmentButton.addEventListener('click', () => {
+      fileUpload.click();
+    });
+
+    // Klik w obszarze chatBody (o ile nie kliknięto usuń-plik) -> otwiera input
+    chatBody.addEventListener('click', (e) => {
+      if (e.target.closest('.remove-button') || e.target.closest('.attachment')) {
+        return;
+      }
+      fileUpload.click();
+    });
+
+    // -----------------------------------
+    // Drag & drop na chatBody
+    // -----------------------------------
+    chatBody.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      chatBody.classList.add('drag-over');
+    });
+    chatBody.addEventListener('dragleave', () => {
+      chatBody.classList.remove('drag-over');
+    });
+    chatBody.addEventListener('drop', (e) => {
+      e.preventDefault();
+      chatBody.classList.remove('drag-over');
+      const files = Array.from(e.dataTransfer.files);
+      selectedFiles.push(...files);
+      displayFiles();
+    });
+
+    // -----------------------------------
+    // Wybranie pliku przez input
+    // -----------------------------------
+    fileUpload.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      selectedFiles.push(...files);
+      displayFiles();
+    });
+
+    // -----------------------------------
+    // Funkcja wyświetlania plików
+    // -----------------------------------
+    function displayFiles() {
+      chatBody.innerHTML = '';
+
+      if (selectedFiles.length === 0) {
+        const instructionDiv = document.createElement('div');
+        instructionDiv.classList.add('drop-instruction');
+        instructionDiv.textContent = 'Drop your files here';
+        chatBody.appendChild(instructionDiv);
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const attachment = document.createElement('div');
+        attachment.classList.add('attachment');
+
+        // Rozpoznaj typ
+        if (file.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(file);
+          attachment.appendChild(img);
+        } else if (file.type === 'video/mp4') {
+          const video = document.createElement('video');
+          video.src = URL.createObjectURL(file);
+          video.controls = true;
+          attachment.classList.add('video');
+          attachment.appendChild(video);
+        } else {
+          const fileIcon = document.createElement('img');
+          fileIcon.src = "https://img.icons8.com/ios-glyphs/60/000000/file--v1.png";
+          fileIcon.classList.add('file-icon');
+          attachment.appendChild(fileIcon);
+
+          const fileName = document.createElement('p');
+          fileName.textContent = file.name;
+          attachment.appendChild(fileName);
+        }
+
+        // Przycisk usuwania pliku
+        const removeButton = document.createElement('button');
+        removeButton.textContent = '×';
+        removeButton.classList.add('remove-button');
+        removeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectedFiles.splice(index, 1);
+          displayFiles();
+        });
+
+        attachment.appendChild(removeButton);
+        chatBody.appendChild(attachment);
+      });
+    }
+
+    // -----------------------------------
+    // Kliknięcie "Wyślij" (pokaż modal email)
+    // -----------------------------------
+    sendButton.addEventListener('click', () => {
+      if (textInput.value.trim() === '') {
+        alert('Proszę uzupełnić pole tekstowe.');
+        return;
+      }
+      emailModal.style.display = 'flex';
+    });
+
+    // -----------------------------------
+    // Zatwierdzenie emaila w modalu
+    // -----------------------------------
+    emailSendButton.addEventListener('click', () => {
+      const emailInputField = document.getElementById('emailInput');
+      const email = emailInputField.value.trim();
+      
+      // Prosta walidacja: czy jest "@" 
+      if (!email.includes('@')) {
+        emailSendButton.classList.add('shake');
+        setTimeout(() => {
+          emailSendButton.classList.remove('shake');
+        }, 300);
+        return;
+      }
+      
+      // Zamykamy modal
+      emailModal.style.display = 'none';
+      emailInputField.value = '';
+
+      // Wysyłamy całą wiadomość wraz z plikami
+      sendMessage(email);
+    });
+
+    // -----------------------------------
+    // Funkcja wysyłająca dane do upload.php
+    // -----------------------------------
+    function sendMessage(email) {
+      const formData = new FormData();
+      selectedFiles.forEach(file => {
+        formData.append('files[]', file);
+      });
+      formData.append('message', textInput.value.trim());
+      formData.append('email', email);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'upload.php', true);
+
+      // Obsługa postępu
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          progressBar.style.width = `${percentComplete}%`;
+          if (percentComplete === 100) {
+            processingMessage.style.display = 'block';
+          }
+        }
+      };
+
+      // Obsługa odpowiedzi
+      xhr.onload = () => {
+        processingMessage.style.display = 'none';
+        
+        if (xhr.status === 200) {
+          let response;
+          try {
+            response = JSON.parse(xhr.responseText);
+          } catch (err) {
+            console.error('Błąd parsowania JSON:', err, xhr.responseText);
+            return;
+          }
+
+          console.log('Odpowiedź serwera:', response);
+          
+          // Sprawdzamy, czy mamy room_id
+          if (response.room_id) {
+            // Przekierowanie do pokoju
+            window.location.href = `room.php?room_id=${response.room_id}`;
+          } else {
+            console.error('Brak room_id w odpowiedzi serwera.');
+          }
+        } else {
+          console.error('Błąd:', xhr.responseText);
+        }
+      };
+
+      xhr.send(formData);
+    }
+
+    // -----------------------------------
+    // Drag & drop na textarea (opcjonalnie)
+    // -----------------------------------
+    textInput.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      chatBody.classList.add('drag-over');
+    });
+    textInput.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      chatBody.classList.remove('drag-over');
+    });
+    textInput.addEventListener('drop', (e) => {
+      e.preventDefault();
+      chatBody.classList.remove('drag-over');
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        selectedFiles.push(...files);
+        displayFiles();
+      }
+    });
+   
+   
+  const toggleButton = document.getElementById('projectsToggle');
+  const submenu = document.getElementById('projectsSubmenu');
+
+  toggleButton.addEventListener('click', (e) => {
+    e.preventDefault(); // blokuje przeładowanie strony
+    if (submenu.style.display === 'none') {
+      submenu.style.display = 'flex';
+    } else {
+      submenu.style.display = 'none';
+    }
+  });
+</script>
+  </script>
+</body>
+</html>
+
+
