@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wybierz kategorię</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      font-family: 'Manrope', sans-serif;
+    }
+    .split-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+    }
+    .half {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .half:hover {
+      transform: scaleX(1.05);
+      background-color: rgba(0, 0, 0, 0.6);
+      transform-origin: center center;
+    }
+    .divider {
+      height: 2px;
+      background-color: #1a1a1a;
+      z-index: 10;
+    }
+    video {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+    .center-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      width: 50vw;
+      max-width: 700px;
+      height: auto;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    /* Animacje zdjęć */
+    .hidden-image-top {
+      opacity: 0;
+      transform: translateY(-100px) scale(0.95);
+      transition: opacity 2s ease, transform 2s ease;
+      transition-delay: 0.5s; /* Opóźnienie 0.5s */
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+    }
+    .visible-image-top {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .hidden-image-bottom {
+      opacity: 0;
+      transform: translateY(100px) scale(0.95);
+      transition: opacity 2s ease, transform 2s ease;
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+    }
+    .visible-image-bottom {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .hidden-image-right, .hidden-image-left {
+      opacity: 0;
+      transform: translateX(150px) scale(0.95);
+      transition: opacity 1.5s ease, transform 1.5s ease;
+      width: 100%;
+    }
+    .hidden-image-left {
+      transform: translateX(-150px) scale(0.95);
+    }
+    .visible-image-right, .visible-image-left {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    /* Rozmiar zdjęć */
+    .uniform-size {
+      max-width: 400px;
+      height: auto;
+    }
+
+    /* Animacje tekstu */
+    .hidden-text {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.5s ease, transform 1.5s ease;
+    }
+    .visible-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Media Queries */
+    @media (max-width: 767px) {
+      .flex-col {
+        display: flex;
+        flex-direction: column;
+      }
+      .md\:flex-row {
+        flex-direction: column;
+      }
+      .md\:w-1\/2 {
+        width: 100%;
+      }
+    }
+    @media (min-width: 768px) {
+      .md\:flex-row {
+        flex-direction: row;
+      }
+      .md\:w-1\/2 {
+        width: 50%;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-black">
+
+  <div class="split-container">
+    <!-- Logo na środku -->
+    <img src="MACHERINIO2.png" alt="Logo" class="center-logo">
+
+    <!-- Górna połowa -->
+    <div onclick="scrollToSection('regeneracja-belek')" class="half group cursor-pointer">
+      <video preload="none" autoplay muted loop class="absolute inset-0 w-full h-full z-0">
+        <source src="mechanika3.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 z-10 transition duration-300"></div>
+      <div class="relative z-20 h-full flex items-center justify-center">
+        <h1 class="text-white text-3xl md:text-5xl font-bold text-center">Regeneracja Belek</h1>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Dolna połowa -->
+    <div onclick="scrollToSection('slusarstwo')" class="half group cursor-pointer">
+      <video preload="none" autoplay muted loop class="absolute inset-0 w-full h-full z-0">
+        <source src="slusarstwo2.mp4" type="video/mp4">
+      </video>
+      <div class="absolute inset-0 bg-black/40 group-hover:bg-black/30 z-10 transition duration-300"></div>
+      <div class="relative z-20 h-full flex items-center justify-center">
+        <h1 class="text-white text-3xl md:text-5xl font-bold text-center">Ślusarstwo</h1>
+      </div>
+    </div>
+  </div>
+
+ <!-- Sekcja Regeneracja Belek -->
+<section id="regeneracja-belek" class="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white px-4 py-16">
+  <div class="container mx-auto flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
+    <!-- Zdjęcia - stała szerokość -->
+    <div class="flex flex-col items-center w-full md:w-auto">
+      <img src="NASTRONE10.png" alt="Pierwsze zdjęcie" id="first-image" class="hidden-image-top mb-8 w-full max-w-[400px]">
+      <img src="NASTRONE.png" alt="Drugie zdjęcie" id="regeneracja-image" class="hidden-image-bottom w-full max-w-[400px]">
+    </div>
+
+    <!-- Tekst - ograniczona szerokość i możliwość przewijania -->
+    <div class="text-center md:text-left hidden-text max-w-[600px] w-full md:w-auto" id="text-regeneracja">
+      <h2 class="text-3xl md:text-5xl font-bold text-black">Regeneracja Belek</h2>
+      <div class="mt-4 text-lg text-gray-700 max-h-[60vh] overflow-y-auto px-4">
+        <p>
+          Nasza firma od ponad 10 lat specjalizuje się w regeneracji i wymianie tylnych belek do samochodów marek <strong>Citroën i Peugeot</strong> – w tym modeli: <br>
+      <strong>Peugeot 106, 206, 306, Partner oraz Citroën Berlingo, Xsara.</strong> Regenerowane belki przywracamy do stanu fabrycznego – każda z nich przechodzi pełen proces naprawczy.
+      Dzięki temu regenerowana belka jest trwała, sprawna i gotowa do długiej, bezproblemowej eksploatacji.<br>
+      <strong>2 lata gwarancji bez limitu kilometrów – w przypadku montażu w naszym warsztacie.</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- Sekcja Ślusarstwo -->
+  <section id="slusarstwo" class="flex flex-col items-center justify-center min-h-screen bg-white px-4 py-16 space-y-20">
+
+    <h2 class="text-3xl md:text-5xl font-bold text-black mb-8 text-center hidden-text" id="text-slusarstwo-title">Ślusarstwo</h2>
+
+    <!-- Usługa 1 -->
+    <div class="flex flex-col-reverse md:flex-row items-center md:justify-between w-full max-w-6xl">
+      <div class="text-center md:text-left mt-4 md:mt-0 md:w-1/2 px-4 hidden-text">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Spawanie laserowe</h3>
+        <p class="text-gray-700 text-lg">Oferujemy profesjonalne spawanie laserowe za pomocą maszyny CORMAK WL2000 3w1. Dzięki nowoczesnej technologii, jesteśmy w stanie wykonać wysokiej jakości spawy na wielu gatunkach materiałów, takich jak stal nierdzewna, stal węglowa, aluminium, czy miedź. Nasze usługi charakteryzują się dużą precyzją, czystymi spawami i minimalnym wpływem na materiał, co zapewnia trwałość oraz estetykę połączeń.</p>
+      </div>
+      <img src="laser.png" alt="Usługa 1" class="hidden-image-right uniform-size">
+    </div>
+
+    <!-- Usługa 2 -->
+    <div class="flex flex-col md:flex-row items-center md:justify-between w-full max-w-6xl">
+      <img src="plazma.jpg" alt="Usługa 2" class="hidden-image-left uniform-size mb-4 md:mb-0">
+      <div class="text-center md:text-left md:w-1/2 px-4 hidden-text">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Cięcie plazmowe CNC</h3>
+        <p class="text-gray-700 text-lg">Oferujemy precyzyjne cięcie stali i innych materiałów za pomocą wycinarki plazmowej CNC. Dzięki tej technologii jesteśmy w stanie wykonywać skomplikowane cięcia o wysokiej dokładności, nawet w grubych blachach. Idealne do produkcji detali, cięcia elementów konstrukcyjnych oraz niestandardowych kształtów.</p>
+      </div>
+    </div>
+
+    <!-- Usługa 3 -->
+    <div class="flex flex-col-reverse md:flex-row items-center md:justify-between w-full max-w-6xl">
+      <div class="text-center md:text-left mt-4 md:mt-0 md:w-1/2 px-4 hidden-text">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Usługi gięcia na prasie krawędziowej</h3>
+        <p class="text-gray-700 text-lg">Oferujemy precyzyjne gięcie blach za pomocą prasy krawędziowej. Dzięki tej technologii jesteśmy w stanie giąć materiały takie jak stal, stal nierdzewną, aluminium czy miedź, tworząc skomplikowane kształty i elementy o wysokiej dokładności. Prasa krawędziowa pozwala na precyzyjne formowanie blach o różnych grubościach, co sprawia, że usługa jest idealna do produkcji detali, konstrukcji maszyn i innych elementów przemysłowych.</p>
+      </div>
+      <img src="prasa.png" alt="Usługa 3" class="hidden-image-right uniform-size">
+    </div>
+ <!-- Usługa 4 -->
+    <div class="flex flex-col md:flex-row items-center md:justify-between w-full max-w-6xl">
+      <img src="konstrukcje.png" alt="Usługa 4" class="hidden-image-left uniform-size mb-4 md:mb-0">
+      <div class="text-center md:text-left md:w-1/2 px-4 hidden-text">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">Konstrukcje stalowe</h3>
+        <p class="text-gray-700 text-lg">Wykonujemy konstrukcje stalowe, które odpowiadają na różnorodne potrzeby przemysłowe i techniczne. Dzięki precyzyjnemu wykonaniu oraz nowoczesnemu zapleczu technicznemu, nasze projekty cechują się wyjątkową trwałością i dokładnością. Niezależnie od skomplikowania zadania, jesteśmy w stanie dostarczyć rozwiązania, które są funkcjonalne, solidne i idealnie dopasowane do wymagań klienta. Każdy projekt traktujemy indywidualnie, zapewniając pełne wsparcie na każdym etapie realizacji.</p>
+      </div>
+    </div>
+  </section>
+
+ <!-- Sekcja Kontakt -->
+<section id="kontakt" class="flex flex-col items-center justify-center min-h-screen bg-white px-4 py-16">
+  <h2 class="text-3xl md:text-5xl font-bold text-black mb-8 hidden-text" id="text-kontakt">Kontakt</h2>
+  <p class="text-lg text-gray-700 max-w-2xl text-center hidden-text">
+    Masz pytania? Wypełnij formularz kontaktowy, a odezwiemy się do Ciebie!
+  </p>
+
+  <form action="https://formsubmit.co/279bd4b6fe3ed594294a18af761bad12" method="POST" class="w-full max-w-lg mt-8 space-y-4 hidden-text">
+    <!-- Ukryte ustawienia -->
+    <input type="hidden" name="_captcha" value="false">
+    
+    <div>
+      <label for="name" class="block text-left font-semibold text-gray-700">Imię i nazwisko</label>
+      <input type="text" name="name" id="name" required class="w-full border border-gray-300 p-2 rounded" />
+    </div>
+
+    <div>
+      <label for="email" class="block text-left font-semibold text-gray-700">Email</label>
+      <input type="email" name="email" id="email" required class="w-full border border-gray-300 p-2 rounded" />
+    </div>
+
+    <div>
+      <label for="message" class="block text-left font-semibold text-gray-700">Wiadomość</label>
+      <textarea name="message" id="message" rows="5" required class="w-full border border-gray-300 p-2 rounded"></textarea>
+    </div>
+
+    <!-- Przycisk wyślij - centrowanie -->
+    <div class="flex justify-center mt-4">
+      <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+        Wyślij wiadomość
+      </button>
+    </div>
+  </form>
+  
+  <div id="thankyou-msg" class="hidden text-green-600 mt-4 font-semibold">
+    Dziękujemy! Wiadomość została wysłana.
+  </div>
+
+  <div class="mt-12 text-center text-gray-600 hidden-text">
+    <p><strong>Telefon:</strong> +48 501 294 741</p>
+    <p><strong>Email:</strong> macher1@poczta.onet.pl </p>
+    <p><strong>Adres:</strong> Ochaby Małe ul. Strażacka 2, 43-430 Cieszyn Woj: Śląskie</p>
+  </div>
+</section>
+
+
+  <!-- Skrypty -->
+  <script>
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Animacje zdjęć regeneracja
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.getElementById("first-image").classList.add("visible-image-top");
+          document.getElementById("regeneracja-image").classList.add("visible-image-bottom");
+          document.getElementById("text-regeneracja").classList.add("visible-text");
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(document.getElementById("regeneracja-belek"));
+
+    // Animacje zdjęć ślusarstwo
+    const slusarstwoImages = document.querySelectorAll('#slusarstwo img');
+    slusarstwoImages.forEach(img => {
+      const imgObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (img.classList.contains('hidden-image-right')) {
+              img.classList.add('visible-image-right');
+            } else if (img.classList.contains('hidden-image-left')) {
+              img.classList.add('visible-image-left');
+            }
+          }
+        });
+      }, { threshold: 0.5 });
+      imgObserver.observe(img);
+    });
+
+    // Animacje tekstu
+    const hiddenTexts = document.querySelectorAll('.hidden-text');
+    hiddenTexts.forEach(text => {
+      const textObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            text.classList.add('visible-text');
+          }
+        });
+      }, { threshold: 0.5 });
+      textObserver.observe(text);
+    });
+    
+     document.querySelector("form").addEventListener("submit", async function (e) {
+    e.preventDefault(); // Zatrzymaj domyślne wysłanie
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        form.reset(); // Wyczyść formularz
+        document.getElementById("thankyou-msg").classList.remove("hidden"); // Pokaż komunikat
+      } else {
+        alert("Wystąpił błąd podczas wysyłania formularza.");
+      }
+    } catch (error) {
+      alert("Nie udało się nawiązać połączenia.");
+    }
+  });
+  </script>
+
+</body>
+</html>
+
+
